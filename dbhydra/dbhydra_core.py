@@ -267,9 +267,16 @@ class AbstractDB(abc.ABC):
         if db_details is None:
             db_details = read_connection_details(config_file)
 
-        self.locally = True
-        if db_details["LOCALLY"] == "False":
-            self.locally = False
+        if 'LOCALLY' in db_details:
+            self.locally = True
+            if db_details["LOCALLY"] == "False":
+                self.locally = False
+        elif db_details['DB_SERVER'] in ['localhost', '127.0.0.1', '0.0.0.0']:
+            self.locally = True
+        else:
+            raise DbHydraException('Please specify if connection is local.')
+
+
 
         self.DB_SERVER = db_details["DB_SERVER"]
         self.DB_DATABASE = db_details["DB_DATABASE"]
